@@ -16,12 +16,12 @@
 
 ; Second part
 
-(defn sum [x] (reduce #(+ %) 0 x))
+(defn sum [x] (reduce + 0 x))
 
 (defn max-sequence-of-subsequent-partitions [input]
   (reduce
     (fn [res [current, next]]
-      (+ res (if (> (reduce + 0 next) (reduce + 0 current)) 1 0)))
+      (+ res (if (> (sum next) (sum current)) 1 0)))
     0
     (partition 2 1 input)))
 
