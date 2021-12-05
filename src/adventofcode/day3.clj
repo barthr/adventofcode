@@ -7,25 +7,43 @@
 
 (def input (util/read-input "resources/day3.txt" #(str/split % #"")))
 
-(def zipped (apply map vector input))
+(defn zipped [input] (apply map vector input))
 
-(defn significant-digit [condition]
-  (
-    map
-    #(if
-       (condition
-         (count (filter (fn [v] (= "0" v)) %))
-         (count (filter (fn [v] (= "1" v)) %))
-         ) 0 1)
-    zipped
-    )
+(defn significant-digit [list condition]
+  (if
+    (condition
+      (count (filter #(= "0" %) list))
+      (count (filter #(= "1" %) list))
+      ) "0" "1")
   )
 
-(def gamma-rate (Integer/parseInt (str/join "" (significant-digit >)) 2))
-(def epsilon-rate (Integer/parseInt (str/join "" (significant-digit <)) 2))
+(defn significant-digits [condition]
+  (map #(significant-digit % condition) (zipped input)))
+
+(defn convert-to-decimal [input] (Integer/parseInt (str/join "" input) 2))
+
+(def gamma-rate (convert-to-decimal (significant-digits >)))
+(def epsilon-rate (convert-to-decimal (significant-digits <)))
 
 ; solution part 1
 (println (* gamma-rate epsilon-rate))
 
 ; solution part 2
+
+; https://adventofcode.com/2021/day/3#part2
+
+(defn filter-diagnostic-report [list condition index]
+  (filter #(= (significant-digit (nth (zipped list) index) condition) (nth % index)) list))
+
+(defn solution [list condition index]
+  (if (> (count list) 1)
+    (solution (filter-diagnostic-report list condition index) condition (+ index 1))
+    (first list)
+    )
+  )
+
+(def oxygen (convert-to-decimal (solution input > 0)))
+(def co2 (convert-to-decimal (solution input <= 0)))
+
+(println (* oxygen co2))
 
